@@ -43,6 +43,7 @@ import { startTransition } from 'react';
 import { getContextWindow, normalizeUsage } from 'tokenlens';
 import { Context } from './elements/context';
 import { myProvider } from '@/lib/ai/providers';
+import { KnowledgeBaseSearchButton } from './knowledge-base-search-button';
 
 function PureMultimodalInput({
   chatId,
@@ -364,6 +365,10 @@ function PureMultimodalInput({
               fileInputRef={fileInputRef}
               status={status}
               selectedModelId={selectedModelId}
+            />
+            <KnowledgeBaseSearchButton
+              sendMessage={sendMessage}
+              disabled={status === 'submitted'}
             />
             <ModelSelectorCompact selectedModelId={selectedModelId} />
           </PromptInputTools>

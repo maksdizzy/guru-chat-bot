@@ -884,6 +884,23 @@ export const ChevronRightIcon = ({ size = 16 }: { size?: number }) => (
   </svg>
 );
 
+export const SearchIcon = ({ size = 16 }: { size?: number }) => (
+  <svg
+    height={size}
+    strokeLinejoin="round"
+    viewBox="0 0 16 16"
+    width={size}
+    style={{ color: 'currentcolor' }}
+  >
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M7 1C3.68629 1 1 3.68629 1 7C1 10.3137 3.68629 13 7 13C8.47175 13 9.80883 12.5004 10.8542 11.6736L14.1464 14.9658C14.3417 15.1611 14.6583 15.1611 14.8536 14.9658C15.0488 14.7705 15.0488 14.454 14.8536 14.2587L11.5614 10.9665C12.5004 9.80883 13 8.47175 13 7C13 3.68629 10.3137 1 7 1ZM2 7C2 4.23858 4.23858 2 7 2C9.76142 2 12 4.23858 12 7C12 9.76142 9.76142 12 7 12C4.23858 12 2 9.76142 2 7Z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
 export const SparklesIcon = ({ size = 16 }: { size?: number }) => (
   <svg
     height={size}
