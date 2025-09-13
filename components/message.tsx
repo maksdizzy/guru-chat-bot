@@ -16,6 +16,7 @@ import {
 import { MessageActions } from './message-actions';
 import { PreviewAttachment } from './preview-attachment';
 import { Weather } from './weather';
+import { KnowledgeBaseResult, KnowledgeBaseError } from './knowledge-base-result';
 import equal from 'fast-deep-equal';
 import { cn, sanitizeText } from '@/lib/utils';
 import { MessageEditor } from './message-editor';
@@ -259,6 +260,47 @@ const PurePreviewMessage = ({
                               result={part.output}
                               isReadonly={isReadonly}
                             />
+                          )
+                        }
+                        errorText={undefined}
+                      />
+                    )}
+                  </ToolContent>
+                </Tool>
+              );
+            }
+
+            if (type === 'tool-knowledgeBaseSearch') {
+              const { toolCallId, state } = part;
+
+              return (
+                <Tool key={toolCallId} defaultOpen={true}>
+                  <ToolHeader type="tool-knowledgeBaseSearch" state={state} />
+                  <ToolContent>
+                    {state === 'input-available' && (
+                      <ToolInput input={part.input} />
+                    )}
+                    {state === 'output-available' && (
+                      <ToolOutput
+                        output={
+                          'error' in part.output ? (
+                            <KnowledgeBaseError
+                              error={String(part.output.error)}
+                              message={part.output.error ? String(part.output.error) : undefined}
+                            />
+                          ) : (
+                            part.output.llm_answer && part.output.sources ? (
+                              <KnowledgeBaseResult
+                                result={{
+                                  llm_answer: part.output.llm_answer,
+                                  sources: part.output.sources,
+                                }}
+                              />
+                            ) : (
+                              <div className="rounded border p-2 text-muted-foreground">
+                                No results found for this query.
+                              </div>
+                            )
                           )
                         }
                         errorText={undefined}

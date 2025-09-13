@@ -3,10 +3,12 @@ import type { getWeather } from './ai/tools/get-weather';
 import type { createDocument } from './ai/tools/create-document';
 import type { updateDocument } from './ai/tools/update-document';
 import type { requestSuggestions } from './ai/tools/request-suggestions';
+import type { knowledgeBaseSearch } from './ai/tools/knowledge-base-search';
 import type { InferUITool, LanguageModelUsage, UIMessage } from 'ai';
 
 import type { ArtifactKind } from '@/components/artifact';
 import type { Suggestion } from './db/schema';
+import type { RAGResponse } from './rag/types';
 
 export type DataPart = { type: 'append-message'; message: string };
 
@@ -22,12 +24,16 @@ type updateDocumentTool = InferUITool<ReturnType<typeof updateDocument>>;
 type requestSuggestionsTool = InferUITool<
   ReturnType<typeof requestSuggestions>
 >;
+type knowledgeBaseSearchTool = InferUITool<
+  ReturnType<typeof knowledgeBaseSearch>
+>;
 
 export type ChatTools = {
   getWeather: weatherTool;
   createDocument: createDocumentTool;
   updateDocument: updateDocumentTool;
   requestSuggestions: requestSuggestionsTool;
+  knowledgeBaseSearch: knowledgeBaseSearchTool;
 };
 
 export type CustomUIDataTypes = {
@@ -43,6 +49,11 @@ export type CustomUIDataTypes = {
   clear: null;
   finish: null;
   usage: LanguageModelUsage;
+  'rag-response': RAGResponse;
+  'rag-error': {
+    error: string;
+    message: string;
+  };
 };
 
 export type ChatMessage = UIMessage<
