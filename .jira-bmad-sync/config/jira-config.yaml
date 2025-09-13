@@ -1,0 +1,27 @@
+JIRA_CONFIG:
+  cloudId: "de5bc45c-fa30-466c-b9bd-798b53e54f77"
+  projectKey: "TKB"
+  projectName: "AI-TG Knowledge Base (Experimental)"
+  instanceUrl: "https://gurunetwork.atlassian.net"
+
+ISSUE_TYPE_MAPPING:
+  epic: "10000"
+  story: "10004"
+  task: "10053"
+  bug: "10215"
+  subtask: "10054"
+
+STATUS_WORKFLOW:
+  backlog: "To Do"
+  ready: "To Do"
+  in_progress: "In Progress"
+  code_review: "In Review"
+  testing: "In Review"
+  done: "Done"
+
+PRIORITY_MAPPING:
+  critical: "Highest"
+  high: "High"
+  medium: "Medium"
+  low: "Low"
+  trivial: "Lowest"

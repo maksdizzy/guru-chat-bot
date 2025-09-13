@@ -1,0 +1,112 @@
+# TKB Jira Project Mappings
+
+jira_config:
+  cloud_id: "de5bc45c-fa30-466c-b9bd-798b53e54f77"
+  project_key: "TKB"
+  project_name: "AI-TG Knowledge Base (Experimental)"
+  instance_url: "https://gurunetwork.atlassian.net"
+
+issue_types:
+  epic:
+    id: "10000"
+    name: "Epic"
+    hierarchy_level: 1
+    description: "A big user story that needs to be broken down"
+  story:
+    id: "10004"
+    name: "Story"
+    hierarchy_level: 0
+    description: "Stories track functionality or features expressed as user goals"
+  task:
+    id: "10053"
+    name: "Task"
+    hierarchy_level: 0
+    description: "A task that needs to be done"
+  bug:
+    id: "10215"
+    name: "Bug"
+    hierarchy_level: 0
+    description: "A problem or error"
+  subtask:
+    id: "10054"
+    name: "Sub-task"
+    hierarchy_level: -1
+    description: "The sub-task of the issue"
+
+status_mappings:
+  local_to_jira:
+    backlog: "To Do"
+    ready: "To Do"
+    in_progress: "In Progress"
+    code_review: "In Review"
+    testing: "In Review"
+    done: "Done"
+    closed: "Done"
+  jira_to_local:
+    "To Do": "backlog"
+    "In Progress": "in_progress"
+    "In Review": "code_review"
+    "Done": "done"
+
+priority_mappings:
+  local_to_jira:
+    critical: "Highest"
+    high: "High"
+    medium: "Medium"
+    low: "Low"
+    trivial: "Lowest"
+  jira_to_local:
+    "Highest": "critical"
+    "High": "high"
+    "Medium": "medium"
+    "Low": "low"
+    "Lowest": "trivial"
+
+field_mappings:
+  epic:
+    title: "summary"
+    description: "description"
+    status: "status"
+    priority: "priority"
+    assignee: "assignee"
+    labels: "labels"
+    epic_name: "customfield_epic_name"
+  story:
+    title: "summary"
+    description: "description"
+    status: "status"
+    priority: "priority"
+    assignee: "assignee"
+    story_points: "customfield_story_points"
+    epic_link: "customfield_epic_link"
+    labels: "labels"
+  task:
+    title: "summary"
+    description: "description"
+    status: "status"
+    priority: "priority"
+    assignee: "assignee"
+    labels: "labels"
+  bug:
+    title: "summary"
+    description: "description"
+    status: "status"
+    priority: "priority"
+    assignee: "assignee"
+    severity: "customfield_severity"
+    labels: "labels"
+
+sync_settings:
+  bidirectional: true
+  auto_link: true
+  preserve_hierarchy: true
+  conflict_resolution: "prompt_user"
+  batch_size: 10
+  retry_attempts: 3
+  log_all_operations: true
+
+file_patterns:
+  epic: "docs/prd/epic-*.md"
+  story: "docs/stories/story-*.md"
+  task: "docs/stories/task-*.md"
+  bug: "docs/stories/bug-*.md"

@@ -41,3 +41,10 @@ yarn-error.log*
 /playwright-report/
 /blob-report/
 /playwright/*
+
+# Jira configuration
+@jira-config.yaml
+
+# BMad and project resources
+.jira-bmad-sync/
+.guru-project-resources/
