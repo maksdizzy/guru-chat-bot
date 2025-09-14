@@ -1,0 +1,12 @@
+schema: 1
+story: '1.1'
+gate: CONCERNS
+status_reason: 'Test runner mismatch - Playwright used for unit tests instead of standard unit test framework.'
+reviewer: 'Quinn'
+updated: '2025-01-14T09:00:00Z'
+top_issues:
+  - id: 'TEST-001'
+    severity: low
+    finding: 'Unit tests use Playwright test runner instead of Jest/Vitest'
+    suggested_action: 'Consider migrating to standard unit test framework for consistency'
+waiver: { active: false }
