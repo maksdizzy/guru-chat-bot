@@ -1,25 +1,28 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useWindowSize } from 'usehooks-ts';
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useWindowSize } from "usehooks-ts";
 
-import { SidebarToggle } from '@/components/sidebar-toggle';
-import { Button } from '@/components/ui/button';
-import { PlusIcon, VercelIcon } from './icons';
-import { useSidebar } from './ui/sidebar';
-import { memo } from 'react';
-import { type VisibilityType, VisibilitySelector } from './visibility-selector';
-import type { Session } from 'next-auth';
+import { SidebarToggle } from "@/components/sidebar-toggle";
+import { Button } from "@/components/ui/button";
+import { PlusIcon, VercelIcon } from "./icons";
+import { useSidebar } from "./ui/sidebar";
+import { memo } from "react";
+import { type VisibilityType, VisibilitySelector } from "./visibility-selector";
+import { type ToolSelectionType, ToolSelector } from "./tool-selector";
+import type { Session } from "next-auth";
 
 function PureChatHeader({
   chatId,
   selectedVisibilityType,
+  selectedToolOption = "all-tools",
   isReadonly,
   session,
 }: {
   chatId: string;
   selectedVisibilityType: VisibilityType;
+  selectedToolOption?: ToolSelectionType;
   isReadonly: boolean;
   session: Session;
 }) {
@@ -37,7 +40,7 @@ function PureChatHeader({
           variant="outline"
           className="order-2 ml-auto h-8 px-2 md:order-1 md:ml-0 md:h-fit md:px-2"
           onClick={() => {
-            router.push('/');
+            router.push("/");
             router.refresh();
           }}
         >
@@ -47,11 +50,18 @@ function PureChatHeader({
       )}
 
       {!isReadonly && (
-        <VisibilitySelector
-          chatId={chatId}
-          selectedVisibilityType={selectedVisibilityType}
-          className="order-1 md:order-2"
-        />
+        <>
+          <VisibilitySelector
+            chatId={chatId}
+            selectedVisibilityType={selectedVisibilityType}
+            className="order-1 md:order-2"
+          />
+          <ToolSelector
+            chatId={chatId}
+            selectedToolOption={selectedToolOption}
+            className="order-2 md:order-3"
+          />
+        </>
       )}
 
       <Button
@@ -74,6 +84,7 @@ export const ChatHeader = memo(PureChatHeader, (prevProps, nextProps) => {
   return (
     prevProps.chatId === nextProps.chatId &&
     prevProps.selectedVisibilityType === nextProps.selectedVisibilityType &&
+    prevProps.selectedToolOption === nextProps.selectedToolOption &&
     prevProps.isReadonly === nextProps.isReadonly
   );
 });

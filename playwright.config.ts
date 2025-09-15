@@ -65,6 +65,13 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
       },
     },
+    {
+      name: 'unit',
+      testMatch: /unit\/.*.test.t(s|sx)/,
+      use: {
+        ...devices['Desktop Chrome'],
+      },
+    },
 
     // {
     //   name: 'firefox',

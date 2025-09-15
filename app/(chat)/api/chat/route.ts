@@ -6,9 +6,9 @@ import {
   smoothStream,
   stepCountIs,
   streamText,
-} from 'ai';
-import { auth, type UserType } from '@/app/(auth)/auth';
-import { type RequestHints, systemPrompt } from '@/lib/ai/prompts';
+} from "ai";
+import { auth, type UserType } from "@/app/(auth)/auth";
+import { type RequestHints, systemPrompt } from "@/lib/ai/prompts";
 import {
   createStreamId,
   deleteChatById,
@@ -17,29 +17,29 @@ import {
   getMessagesByChatId,
   saveChat,
   saveMessages,
-} from '@/lib/db/queries';
-import { updateChatLastContextById } from '@/lib/db/queries';
-import { convertToUIMessages, generateUUID } from '@/lib/utils';
-import { generateTitleFromUserMessage } from '../../actions';
-import { createDocument } from '@/lib/ai/tools/create-document';
-import { updateDocument } from '@/lib/ai/tools/update-document';
-import { requestSuggestions } from '@/lib/ai/tools/request-suggestions';
-import { getWeather } from '@/lib/ai/tools/get-weather';
-import { knowledgeBaseSearch } from '@/lib/ai/tools/knowledge-base-search';
-import { isProductionEnvironment } from '@/lib/constants';
-import { myProvider } from '@/lib/ai/providers';
-import { entitlementsByUserType } from '@/lib/ai/entitlements';
-import { postRequestBodySchema, type PostRequestBody } from './schema';
-import { geolocation } from '@vercel/functions';
+} from "@/lib/db/queries";
+import { updateChatLastContextById } from "@/lib/db/queries";
+import { convertToUIMessages, generateUUID } from "@/lib/utils";
+import { generateTitleFromUserMessage } from "../../actions";
+import { createDocument } from "@/lib/ai/tools/create-document";
+import { updateDocument } from "@/lib/ai/tools/update-document";
+import { requestSuggestions } from "@/lib/ai/tools/request-suggestions";
+import { getWeather } from "@/lib/ai/tools/get-weather";
+import { knowledgeBaseSearch } from "@/lib/ai/tools/knowledge-base-search";
+import { isProductionEnvironment } from "@/lib/constants";
+import { myProvider } from "@/lib/ai/providers";
+import { entitlementsByUserType } from "@/lib/ai/entitlements";
+import { postRequestBodySchema, type PostRequestBody } from "./schema";
+import { geolocation } from "@vercel/functions";
 import {
   createResumableStreamContext,
   type ResumableStreamContext,
-} from 'resumable-stream';
-import { after } from 'next/server';
-import { ChatSDKError } from '@/lib/errors';
-import type { ChatMessage } from '@/lib/types';
-import type { ChatModel } from '@/lib/ai/models';
-import type { VisibilityType } from '@/components/visibility-selector';
+} from "resumable-stream";
+import { after } from "next/server";
+import { ChatSDKError } from "@/lib/errors";
+import type { ChatMessage } from "@/lib/types";
+import type { ChatModel } from "@/lib/ai/models";
+import type { VisibilityType } from "@/components/visibility-selector";
 
 export const maxDuration = 60;
 
@@ -52,9 +52,9 @@ export function getStreamContext() {
         waitUntil: after,
       });
     } catch (error: any) {
-      if (error.message.includes('REDIS_URL')) {
+      if (error.message.includes("REDIS_URL")) {
         console.log(
-          ' > Resumable streams are disabled due to missing REDIS_URL',
+          " > Resumable streams are disabled due to missing REDIS_URL",
         );
       } else {
         console.error(error);
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
     const json = await request.json();
     requestBody = postRequestBodySchema.parse(json);
   } catch (_) {
-    return new ChatSDKError('bad_request:api').toResponse();
+    return new ChatSDKError("bad_request:api").toResponse();
   }
 
   try {
@@ -81,17 +81,19 @@ export async function POST(request: Request) {
       message,
       selectedChatModel,
       selectedVisibilityType,
+      selectedToolOption = "all-tools",
     }: {
       id: string;
       message: ChatMessage;
-      selectedChatModel: ChatModel['id'];
+      selectedChatModel: ChatModel["id"];
       selectedVisibilityType: VisibilityType;
+      selectedToolOption?: "all-tools" | "no-knowledge-base";
     } = requestBody;
 
     const session = await auth();
 
     if (!session?.user) {
-      return new ChatSDKError('unauthorized:chat').toResponse();
+      return new ChatSDKError("unauthorized:chat").toResponse();
     }
 
     const userType: UserType = session.user.type;
@@ -102,7 +104,7 @@ export async function POST(request: Request) {
     });
 
     if (messageCount > entitlementsByUserType[userType].maxMessagesPerDay) {
-      return new ChatSDKError('rate_limit:chat').toResponse();
+      return new ChatSDKError("rate_limit:chat").toResponse();
     }
 
     const chat = await getChatById({ id });
@@ -120,7 +122,7 @@ export async function POST(request: Request) {
       });
     } else {
       if (chat.userId !== session.user.id) {
-        return new ChatSDKError('forbidden:chat').toResponse();
+        return new ChatSDKError("forbidden:chat").toResponse();
       }
     }
 
@@ -141,7 +143,7 @@ export async function POST(request: Request) {
         {
           chatId: id,
           id: message.id,
-          role: 'user',
+          role: "user",
           parts: message.parts,
           attachments: [],
           createdAt: new Date(),
@@ -156,22 +158,39 @@ export async function POST(request: Request) {
 
     const stream = createUIMessageStream({
       execute: ({ writer: dataStream }) => {
+        const baseTools: Array<
+          | "getWeather"
+          | "createDocument"
+          | "updateDocument"
+          | "requestSuggestions"
+          | "knowledgeBaseSearch"
+        > = [
+          "getWeather",
+          "createDocument",
+          "updateDocument",
+          "requestSuggestions",
+        ];
+
+        const activeTools: Array<
+          | "getWeather"
+          | "createDocument"
+          | "updateDocument"
+          | "requestSuggestions"
+          | "knowledgeBaseSearch"
+        > =
+          selectedChatModel === "chat-model-reasoning"
+            ? []
+            : selectedToolOption === "no-knowledge-base"
+              ? baseTools
+              : [...baseTools, "knowledgeBaseSearch"];
+
         const result = streamText({
           model: myProvider.languageModel(selectedChatModel),
           system: systemPrompt({ selectedChatModel, requestHints }),
           messages: convertToModelMessages(uiMessages),
           stopWhen: stepCountIs(5),
-          experimental_activeTools:
-            selectedChatModel === 'chat-model-reasoning'
-              ? []
-              : [
-                  'getWeather',
-                  'createDocument',
-                  'updateDocument',
-                  'requestSuggestions',
-                  'knowledgeBaseSearch',
-                ],
-          experimental_transform: smoothStream({ chunking: 'word' }),
+          experimental_activeTools: activeTools,
+          experimental_transform: smoothStream({ chunking: "word" }),
           tools: {
             getWeather,
             createDocument: createDocument({ session, dataStream }),
@@ -184,11 +203,11 @@ export async function POST(request: Request) {
           },
           experimental_telemetry: {
             isEnabled: isProductionEnvironment,
-            functionId: 'stream-text',
+            functionId: "stream-text",
           },
           onFinish: ({ usage }) => {
             finalUsage = usage;
-            dataStream.write({ type: 'data-usage', data: usage });
+            dataStream.write({ type: "data-usage", data: usage });
           },
         });
 
@@ -220,12 +239,12 @@ export async function POST(request: Request) {
               context: finalUsage,
             });
           } catch (err) {
-            console.warn('Unable to persist last usage for chat', id, err);
+            console.warn("Unable to persist last usage for chat", id, err);
           }
         }
       },
       onError: () => {
-        return 'Oops, an error occurred!';
+        return "Oops, an error occurred!";
       },
     });
 
@@ -245,29 +264,29 @@ export async function POST(request: Request) {
       return error.toResponse();
     }
 
-    console.error('Unhandled error in chat API:', error);
-    return new ChatSDKError('offline:chat').toResponse();
+    console.error("Unhandled error in chat API:", error);
+    return new ChatSDKError("offline:chat").toResponse();
   }
 }
 
 export async function DELETE(request: Request) {
   const { searchParams } = new URL(request.url);
-  const id = searchParams.get('id');
+  const id = searchParams.get("id");
 
   if (!id) {
-    return new ChatSDKError('bad_request:api').toResponse();
+    return new ChatSDKError("bad_request:api").toResponse();
   }
 
   const session = await auth();
 
   if (!session?.user) {
-    return new ChatSDKError('unauthorized:chat').toResponse();
+    return new ChatSDKError("unauthorized:chat").toResponse();
   }
 
   const chat = await getChatById({ id });
 
   if (chat?.userId !== session.user.id) {
-    return new ChatSDKError('forbidden:chat').toResponse();
+    return new ChatSDKError("forbidden:chat").toResponse();
   }
 
   const deletedChat = await deleteChatById({ id });

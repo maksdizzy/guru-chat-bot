@@ -1,0 +1,66 @@
+# Quality Gate Decision for Story 1.6
+schema: 1
+story: "1.6"
+story_title: "Knowledge Base Tool Toggle - Brownfield Addition"
+gate: CONCERNS
+status_reason: "Implementation is solid but test architecture needs improvement and existing linting issues should be addressed"
+reviewer: "Quinn (Test Architect)"
+updated: "2025-01-14T10:30:00Z"
+
+waiver: { active: false }
+
+top_issues:
+  - id: "TEST-001"
+    severity: medium
+    finding: "New tests converted from Jest to Playwright but existing unit tests have format issues"
+    suggested_action: "Standardize testing approach across project - ensure all tests use Playwright"
+  - id: "LINT-001"
+    severity: medium
+    finding: "Multiple linting violations exist in codebase (193 errors, 15 warnings)"
+    suggested_action: "Address linting issues to maintain code quality standards"
+
+risk_summary:
+  totals:
+    critical: 0
+    high: 0
+    medium: 2
+    low: 0
+  recommendations:
+    must_fix: []
+    monitor: ["Testing consistency", "Code quality standards"]
+
+evidence:
+  tests_reviewed: 7
+  risks_identified: 2
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6, 8]
+    ac_gaps: [7, 9]
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: "No security-sensitive code modified; tool selection is client-side state"
+  performance:
+    status: PASS
+    notes: "Minimal performance impact; uses existing patterns and SWR caching"
+  reliability:
+    status: CONCERNS
+    notes: "Test coverage inconsistency could affect reliability verification"
+  maintainability:
+    status: CONCERNS
+    notes: "Code follows patterns well but linting issues affect maintainability"
+
+recommendations:
+  immediate:
+    - action: "Standardize test architecture across project"
+      refs: ["tests/unit/*.test.ts", "playwright.config.ts"]
+    - action: "Address critical linting violations"
+      refs: ["biome.json", "various files with lint errors"]
+  future:
+    - action: "Consider adding e2e tests for complete tool selection workflow"
+      refs: ["tests/e2e/"]
+    - action: "Document testing patterns for future contributors"
+      refs: ["docs/testing-strategy.md"]
+
+quality_score: 75
+expires: "2025-01-28T10:30:00Z"

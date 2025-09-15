@@ -1,27 +1,28 @@
-'use client';
+"use client";
 
-import { DefaultChatTransport, type LanguageModelUsage } from 'ai';
-import { useChat } from '@ai-sdk/react';
-import { useEffect, useState } from 'react';
-import useSWR, { useSWRConfig } from 'swr';
-import { ChatHeader } from '@/components/chat-header';
-import type { Vote } from '@/lib/db/schema';
-import { fetcher, fetchWithErrorHandlers, generateUUID } from '@/lib/utils';
-import { Artifact } from './artifact';
-import { MultimodalInput } from './multimodal-input';
-import { Messages } from './messages';
-import type { VisibilityType } from './visibility-selector';
-import { useArtifactSelector } from '@/hooks/use-artifact';
-import { unstable_serialize } from 'swr/infinite';
-import { getChatHistoryPaginationKey } from './sidebar-history';
-import { toast } from './toast';
-import type { Session } from 'next-auth';
-import { useSearchParams } from 'next/navigation';
-import { useChatVisibility } from '@/hooks/use-chat-visibility';
-import { useAutoResume } from '@/hooks/use-auto-resume';
-import { ChatSDKError } from '@/lib/errors';
-import type { Attachment, ChatMessage } from '@/lib/types';
-import { useDataStream } from './data-stream-provider';
+import { DefaultChatTransport, type LanguageModelUsage } from "ai";
+import { useChat } from "@ai-sdk/react";
+import { useEffect, useState } from "react";
+import useSWR, { useSWRConfig } from "swr";
+import { ChatHeader } from "@/components/chat-header";
+import type { Vote } from "@/lib/db/schema";
+import { fetcher, fetchWithErrorHandlers, generateUUID } from "@/lib/utils";
+import { Artifact } from "./artifact";
+import { MultimodalInput } from "./multimodal-input";
+import { Messages } from "./messages";
+import type { VisibilityType } from "./visibility-selector";
+import { useArtifactSelector } from "@/hooks/use-artifact";
+import { unstable_serialize } from "swr/infinite";
+import { getChatHistoryPaginationKey } from "./sidebar-history";
+import { toast } from "./toast";
+import type { Session } from "next-auth";
+import { useSearchParams } from "next/navigation";
+import { useChatVisibility } from "@/hooks/use-chat-visibility";
+import { useToolSelection } from "@/hooks/use-tool-selection";
+import { useAutoResume } from "@/hooks/use-auto-resume";
+import { ChatSDKError } from "@/lib/errors";
+import type { Attachment, ChatMessage } from "@/lib/types";
+import { useDataStream } from "./data-stream-provider";
 
 export function Chat({
   id,
@@ -47,10 +48,15 @@ export function Chat({
     initialVisibilityType,
   });
 
+  const { toolSelection } = useToolSelection({
+    chatId: id,
+    initialToolSelection: "all-tools",
+  });
+
   const { mutate } = useSWRConfig();
   const { setDataStream } = useDataStream();
 
-  const [input, setInput] = useState<string>('');
+  const [input, setInput] = useState<string>("");
   const [usage, setUsage] = useState<LanguageModelUsage | undefined>(
     initialLastContext,
   );
@@ -69,7 +75,7 @@ export function Chat({
     experimental_throttle: 100,
     generateId: generateUUID,
     transport: new DefaultChatTransport({
-      api: '/api/chat',
+      api: "/api/chat",
       fetch: fetchWithErrorHandlers,
       prepareSendMessagesRequest({ messages, id, body }) {
         return {
@@ -78,6 +84,7 @@ export function Chat({
             message: messages.at(-1),
             selectedChatModel: initialChatModel,
             selectedVisibilityType: visibilityType,
+            selectedToolOption: toolSelection,
             ...body,
           },
         };
@@ -85,7 +92,7 @@ export function Chat({
     }),
     onData: (dataPart) => {
       setDataStream((ds) => (ds ? [...ds, dataPart] : []));
-      if (dataPart.type === 'data-usage') {
+      if (dataPart.type === "data-usage") {
         setUsage(dataPart.data);
       }
     },
@@ -95,7 +102,7 @@ export function Chat({
     onError: (error) => {
       if (error instanceof ChatSDKError) {
         toast({
-          type: 'error',
+          type: "error",
           description: error.message,
         });
       }
@@ -103,19 +110,19 @@ export function Chat({
   });
 
   const searchParams = useSearchParams();
-  const query = searchParams.get('query');
+  const query = searchParams.get("query");
 
   const [hasAppendedQuery, setHasAppendedQuery] = useState(false);
 
   useEffect(() => {
     if (query && !hasAppendedQuery) {
       sendMessage({
-        role: 'user' as const,
-        parts: [{ type: 'text', text: query }],
+        role: "user" as const,
+        parts: [{ type: "text", text: query }],
       });
 
       setHasAppendedQuery(true);
-      window.history.replaceState({}, '', `/chat/${id}`);
+      window.history.replaceState({}, "", `/chat/${id}`);
     }
   }, [query, sendMessage, hasAppendedQuery, id]);
 
@@ -140,6 +147,7 @@ export function Chat({
         <ChatHeader
           chatId={id}
           selectedVisibilityType={initialVisibilityType}
+          selectedToolOption={toolSelection}
           isReadonly={isReadonly}
           session={session}
         />
