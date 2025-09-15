@@ -16,7 +16,7 @@ import type { Session } from "next-auth";
 function PureChatHeader({
   chatId,
   selectedVisibilityType,
-  selectedToolOption = "all-tools",
+  selectedToolOption = "knowledge-base-tool",
   isReadonly,
   session,
 }: {

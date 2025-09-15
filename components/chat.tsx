@@ -50,7 +50,7 @@ export function Chat({
 
   const { toolSelection } = useToolSelection({
     chatId: id,
-    initialToolSelection: "all-tools",
+    initialToolSelection: "no-tools",
   });
 
   const { mutate } = useSWRConfig();
@@ -78,6 +78,7 @@ export function Chat({
       api: "/api/chat",
       fetch: fetchWithErrorHandlers,
       prepareSendMessagesRequest({ messages, id, body }) {
+        console.log("DEBUG: sending toolSelection =", toolSelection);
         return {
           body: {
             id,

@@ -16,7 +16,7 @@ import {
 import { useToolSelection } from '@/hooks/use-tool-selection';
 import { DatabaseIcon, BrainIcon } from 'lucide-react';
 
-export type ToolSelectionType = 'all-tools' | 'no-knowledge-base';
+export type ToolSelectionType = 'knowledge-base-tool' | 'no-tools';
 
 const toolOptions: Array<{
   id: ToolSelectionType;
@@ -25,14 +25,14 @@ const toolOptions: Array<{
   icon: ReactNode;
 }> = [
   {
-    id: 'all-tools',
-    label: 'All Tools',
-    description: 'Use all available tools including knowledge base',
+    id: 'knowledge-base-tool',
+    label: 'Knowledge base tool',
+    description: 'Use knowledge base search tool',
     icon: <DatabaseIcon className="h-4 w-4" />,
   },
   {
-    id: 'no-knowledge-base',
-    label: 'No Knowledge Base',
+    id: 'no-tools',
+    label: 'No Tools',
     description: 'Use only internal AI knowledge',
     icon: <BrainIcon className="h-4 w-4" />,
   },

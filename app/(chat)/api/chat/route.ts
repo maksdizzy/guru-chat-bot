@@ -81,14 +81,15 @@ export async function POST(request: Request) {
       message,
       selectedChatModel,
       selectedVisibilityType,
-      selectedToolOption = "all-tools",
+      selectedToolOption = "knowledge-base-tool",
     }: {
       id: string;
       message: ChatMessage;
       selectedChatModel: ChatModel["id"];
       selectedVisibilityType: VisibilityType;
-      selectedToolOption?: "all-tools" | "no-knowledge-base";
+      selectedToolOption?: "knowledge-base-tool" | "no-tools";
     } = requestBody;
+
 
     const session = await auth();
 
@@ -180,9 +181,26 @@ export async function POST(request: Request) {
         > =
           selectedChatModel === "chat-model-reasoning"
             ? []
-            : selectedToolOption === "no-knowledge-base"
-              ? baseTools
+            : selectedToolOption === "no-tools"
+              ? []
               : [...baseTools, "knowledgeBaseSearch"];
+
+        const allTools = {
+          getWeather,
+          createDocument: createDocument({ session, dataStream }),
+          updateDocument: updateDocument({ session, dataStream }),
+          requestSuggestions: requestSuggestions({
+            session,
+            dataStream,
+          }),
+          knowledgeBaseSearch,
+        };
+
+        const availableTools = Object.fromEntries(
+          Object.entries(allTools).filter(([key]) =>
+            activeTools.includes(key as any)
+          )
+        );
 
         const result = streamText({
           model: myProvider.languageModel(selectedChatModel),
@@ -191,16 +209,7 @@ export async function POST(request: Request) {
           stopWhen: stepCountIs(5),
           experimental_activeTools: activeTools,
           experimental_transform: smoothStream({ chunking: "word" }),
-          tools: {
-            getWeather,
-            createDocument: createDocument({ session, dataStream }),
-            updateDocument: updateDocument({ session, dataStream }),
-            requestSuggestions: requestSuggestions({
-              session,
-              dataStream,
-            }),
-            knowledgeBaseSearch,
-          },
+          tools: availableTools,
           experimental_telemetry: {
             isEnabled: isProductionEnvironment,
             functionId: "stream-text",
