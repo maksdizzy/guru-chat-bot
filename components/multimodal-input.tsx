@@ -495,7 +495,16 @@ function PureStopButton({
       className='size-7 rounded-full bg-foreground p-1 text-background transition-colors duration-200 hover:bg-foreground/90 disabled:bg-muted disabled:text-muted-foreground'
       onClick={(event) => {
         event.preventDefault();
-        stop();
+        try {
+          stop();
+        } catch (error) {
+          // AbortError is expected when stopping a request
+          if (error instanceof Error && error.name === 'AbortError') {
+            console.debug('Request stopped successfully');
+          } else {
+            console.error('Error stopping request:', error);
+          }
+        }
         setMessages((messages) => messages);
       }}
     >

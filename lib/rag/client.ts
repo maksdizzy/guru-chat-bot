@@ -3,7 +3,7 @@ import { fetchWithErrorHandlers } from '../utils';
 
 export interface RAGRequest {
   group_id: number;
-  query: string;
+  question: string;
 }
 
 export interface RAGSource {
@@ -44,23 +44,20 @@ export class RAGClient {
       throw new RAGError('Query parameter is required');
     }
 
-    const requestData: RAGRequest = {
-      group_id: groupId ?? this.config.defaultGroupId,
-      query: query.trim(),
-    };
+    const groupId_ = groupId ?? this.config.defaultGroupId;
+    const params = new URLSearchParams({
+      group_id: groupId_.toString(),
+      question: query.trim(),
+    });
 
-    const url = `${this.config.endpointUrl}/api/rag_search_telegram_es_db`;
+    const url = `${this.config.endpointUrl}/api/rag_search_telegram_es_db?${params}`;
 
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
 
       const response = await fetchWithErrorHandlers(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestData),
+        method: 'GET',
         signal: controller.signal,
       });
 

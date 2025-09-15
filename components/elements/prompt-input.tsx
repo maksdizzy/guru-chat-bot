@@ -64,7 +64,11 @@ export const PromptInputTextarea = ({
       e.preventDefault();
       const form = e.currentTarget.form;
       if (form) {
-        form.requestSubmit();
+        // Check if input has content before submitting
+        const textarea = e.currentTarget;
+        if (textarea.value.trim()) {
+          form.requestSubmit();
+        }
       }
     }
   };

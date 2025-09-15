@@ -294,3 +294,180 @@
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
 }
+
+/* RAG Components Color Palette & Typography */
+:root {
+  --rag-source-highlight: #3B82F6;
+  --rag-source-background: #F8FAFC;
+  --rag-success: #10B981;
+  --rag-warning: #F59E0B;
+  --rag-error: #EF4444;
+}
+
+.dark {
+  --rag-source-highlight: #60A5FA;
+  --rag-source-background: #1E293B;
+  --rag-success: #34D399;
+  --rag-warning: #FBBF24;
+  --rag-error: #F87171;
+}
+
+/* RAG Typography Scale */
+.source-user-name {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.source-date {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+.source-content {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.message-id {
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.citation-count {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Search Term Highlighting */
+.search-highlighted-text mark.search-highlight-0 {
+  background-color: var(--rag-source-highlight);
+  color: white;
+  padding: 1px 2px;
+  border-radius: 2px;
+  font-weight: 500;
+}
+
+.search-highlighted-text mark.search-highlight-1 {
+  background-color: var(--rag-success);
+  color: white;
+  padding: 1px 2px;
+  border-radius: 2px;
+  font-weight: 500;
+}
+
+.search-highlighted-text mark.search-highlight-2 {
+  background-color: var(--rag-warning);
+  color: black;
+  padding: 1px 2px;
+  border-radius: 2px;
+  font-weight: 500;
+}
+
+/* RAG Component Animation Specs */
+@keyframes rag-source-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rag-citation-bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-2px);
+  }
+  60% {
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes rag-loading-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes rag-error-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-2px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(2px);
+  }
+}
+
+/* RAG Component Responsive Design */
+.rag-citation-block {
+  transition: all 200ms ease-out;
+}
+
+.rag-citation-block:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+
+.rag-sources-section {
+  /* Ensure proper spacing and visual hierarchy */
+}
+
+/* Dark mode adjustments for search highlighting */
+.dark .search-highlighted-text mark.search-highlight-0 {
+  background-color: var(--rag-source-highlight);
+  color: white;
+}
+
+.dark .search-highlighted-text mark.search-highlight-1 {
+  background-color: var(--rag-success);
+  color: black;
+}
+
+.dark .search-highlighted-text mark.search-highlight-2 {
+  background-color: var(--rag-warning);
+  color: black;
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .rag-citation-block,
+  .rag-citation-block:hover {
+    transform: none;
+    transition: none;
+  }
+
+  .search-highlighted-text mark {
+    animation: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .search-highlighted-text mark {
+    outline: 2px solid;
+    outline-offset: 1px;
+  }
+}
+
+/* Mobile touch targets */
+@media (max-width: 768px) {
+  .rag-citation-block button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
