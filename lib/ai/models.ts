@@ -1,4 +1,4 @@
-export const DEFAULT_CHAT_MODEL: string = 'chat-model';
+export const DEFAULT_CHAT_MODEL: string = 'gpt-5-mini';
 
 export interface ChatModel {
   id: string;
@@ -17,5 +17,10 @@ export const chatModels: Array<ChatModel> = [
     name: 'Grok Reasoning',
     description:
       'Uses advanced chain-of-thought reasoning for complex problems',
+  },
+  {
+    id: 'gpt-5-mini',
+    name: 'GPT-5 Mini',
+    description: 'OpenAI GPT-5 Mini - Fast and efficient model for general conversations',
   },
 ];
